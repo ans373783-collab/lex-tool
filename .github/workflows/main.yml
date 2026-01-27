@@ -1,0 +1,33 @@
+name: Lexical Analyzer CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Flex, Bison, and GCC
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flex bison gcc
+
+      - name: Generate parser and lexer
+        run: |
+          yacc -d parser.y
+          lex lexer.l
+
+      - name: Compile program
+        run: |
+          gcc lex.yy.c y.tab.c -o lexer
+
+      - name: Run lexer (basic test)
+        run: |
+          echo "int a = 10;" | ./lexer
